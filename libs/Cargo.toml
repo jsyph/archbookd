@@ -1,0 +1,10 @@
+[workspace]
+resolver = "2"
+members = [
+	"screenpad",
+	"battery",
+	"hybrid_graphics",
+	"peripherals",
+	"archbookd_error",
+	"service_utils"
+]
