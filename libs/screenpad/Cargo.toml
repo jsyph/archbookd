@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 archbookd_error = {path = "../archbookd_error"}
 tokio = { version = "1.32.0", features = ["full"] }
+service_utils = {path = "../service_utils"}

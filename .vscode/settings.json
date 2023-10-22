@@ -2,6 +2,7 @@
     "cSpell.words": [
         "Archbook",
         "archbookd",
+        "busctl",
         "dbus",
         "tera",
         "zbus"

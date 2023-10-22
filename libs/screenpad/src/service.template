@@ -1,0 +1,12 @@
+[Unit]
+Description=Restore Screenpad brightness after EVENT
+After=EVENT.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'echo $(cat BRIGHTNESS_BACKUP_PATH) > BRIGHTNESS_CONTROL_FILE'
+Restart=on-failure
+RemainAfterExit=true
+
+[Install]
+WantedBy=EVENT.target

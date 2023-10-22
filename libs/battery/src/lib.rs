@@ -1,5 +1,5 @@
 use archbookd_error::ArchbookDResult;
-use service_utils::{create_active_service, delete_active_service};
+use service_utils::{create_activate_service, nuke_active_service};
 use tokio::fs;
 
 const BATTERY_SERVICE_TEMPLATE: &str = include_str!("./service.template");
@@ -33,7 +33,7 @@ async fn persist_charge_threshold(value: i16) -> ArchbookDResult<()> {
 
         let service_name = format!("archbookd-{}-charge-maximum-persistence.service", event);
 
-        create_active_service(&service_name, &service_content).await?;
+        create_activate_service(&service_name, &service_content).await?;
     }
 
     Ok(())
@@ -55,7 +55,7 @@ pub async fn full_reset() -> ArchbookDResult<()> {
     for event in BATTERY_SERVICE_EVENTS {
         let service_name = format!("archbookd-{}-charge-maximum-persistence.service", event);
 
-        delete_active_service(&service_name).await?;
+        nuke_active_service(&service_name).await?;
     }
     
     Ok(())

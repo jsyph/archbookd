@@ -107,3 +107,6 @@ pub async fn turn_off() -> ArchbookDResult<()> {
     set_brightness(0).await?;
     Ok(())
 }
+
+//? To restore brightness at start, use busctl to invoke
+//? busctl call joe.archbookd /screenpad joe.archbookd.Screenpad SetBrightness n 255
