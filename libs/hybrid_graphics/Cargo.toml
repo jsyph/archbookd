@@ -9,3 +9,6 @@ edition = "2021"
 tokio = { version = "1.33.0", features = ["full"] }
 archbookd_error = {path = "../archbookd_error"}
 service_utils = {path = "../service_utils"}
+radix_fmt = "1.0.0"
+reqwest = "0.11.22"
+json = "0.12.4"

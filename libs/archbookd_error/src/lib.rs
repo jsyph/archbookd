@@ -16,6 +16,10 @@ pub enum ArchbookDError {
     SystemCtlDisable(String),
     SystemCtlDaemonReload,
     ScreenpadBrightnessOutOfRange,
+    InvalidPCIBusId,
+    Reqwest(reqwest::Error),
+    FailedToCheckForUpdates(String),
+    JsonParsing(json::Error)
 }
 
 impl Error for ArchbookDError {}
@@ -55,6 +59,12 @@ impl Display for ArchbookDError {
                 f,
                 "Screenpad brightness out of range. BRIGHTNESS >= 0 and BRIGHTNESS <= 255."
             ),
+            ArchbookDError::InvalidPCIBusId => write!(f, "Lspci returned invalid pci address"),
+            ArchbookDError::Reqwest(error) => write!(f, "{}", error),
+            ArchbookDError::FailedToCheckForUpdates(module) => {
+                write!(f, "Failed to check on updates for module {}", module)
+            }
+            ArchbookDError::JsonParsing(error) => write!(f, "{}", error),
         }
     }
 }
@@ -80,5 +90,17 @@ impl From<ArchbookDError> for fdo::Error {
 impl From<tera::Error> for ArchbookDError {
     fn from(value: tera::Error) -> Self {
         ArchbookDError::TeraTemplate(value)
+    }
+}
+
+impl From<reqwest::Error> for ArchbookDError {
+    fn from(value: reqwest::Error) -> Self {
+        ArchbookDError::Reqwest(value)
+    }
+}
+
+impl From<json::Error> for ArchbookDError{
+    fn from(value: json::Error) -> Self {
+        ArchbookDError::JsonParsing(value)
     }
 }

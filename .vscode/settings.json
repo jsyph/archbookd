@@ -4,6 +4,8 @@
         "archbookd",
         "busctl",
         "dbus",
+        "ENVYCONTROL",
+        "Reqwest",
         "tera",
         "zbus"
     ]

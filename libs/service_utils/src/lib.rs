@@ -7,9 +7,7 @@ fn systemd_service_path(name: &str) -> String {
     format!("{}/{}", SYSTEMD_SERVICE_DIRECTORY, name)
 }
 
-pub async fn create_activate_service(name: &str, content: &str) -> ArchbookDResult<()> {
-    fs::write(systemd_service_path(name), content).await?;
-
+pub async fn enable_service_now(name: &str) -> ArchbookDResult<()> {
     if !Command::new("systemctl")
         .arg("enable")
         .arg(name.to_string())
@@ -22,6 +20,11 @@ pub async fn create_activate_service(name: &str, content: &str) -> ArchbookDResu
         return Err(ArchbookDError::SystemCtlEnable(name.to_string()));
     }
 
+    Ok(())
+}
+
+pub async fn create_service_in_systemd_directory(name: &str, content: &str) -> ArchbookDResult<()> {
+    fs::write(systemd_service_path(name), content).await?;
     Ok(())
 }
 

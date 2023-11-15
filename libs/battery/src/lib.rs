@@ -1,5 +1,5 @@
 use archbookd_error::ArchbookDResult;
-use service_utils::{create_activate_service, nuke_active_service};
+use service_utils::{enable_service_now, nuke_active_service, create_service_in_systemd_directory};
 use tokio::fs;
 
 const BATTERY_SERVICE_TEMPLATE: &str = include_str!("./service.template");
@@ -33,7 +33,8 @@ async fn persist_charge_threshold(value: i16) -> ArchbookDResult<()> {
 
         let service_name = format!("archbookd-{}-charge-maximum-persistence.service", event);
 
-        create_activate_service(&service_name, &service_content).await?;
+        create_service_in_systemd_directory(&service_name, &service_content).await?;
+        enable_service_now(&service_name).await?;
     }
 
     Ok(())
