@@ -1,6 +1,6 @@
 use super::ArchbookdInterface;
-use battery as lib;
 use zbus::{dbus_interface, fdo};
+use archbookd_lib::battery as lib;
 
 #[derive(Default)]
 pub struct Battery;

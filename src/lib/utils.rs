@@ -1,4 +1,4 @@
-use archbookd_error::{ArchbookDError, ArchbookDResult};
+use crate::error::{ArchbookDError, ArchbookDResult};
 use tokio::{fs, process::Command};
 
 const SYSTEMD_SERVICE_DIRECTORY: &str = "/etc/systemd/system";

@@ -11,7 +11,6 @@ pub type ArchbookDResult<T> = Result<T, ArchbookDError>;
 pub enum ArchbookDError {
     IO(io::Error),
     ParseInt(ParseIntError),
-    TeraTemplate(tera::Error),
     SystemCtlEnable(String),
     SystemCtlDisable(String),
     SystemCtlDaemonReload,
@@ -36,9 +35,6 @@ impl Display for ArchbookDError {
             ArchbookDError::IO(error) => write!(f, "IO error on line {}: {}", line!(), error),
             ArchbookDError::ParseInt(error) => {
                 write!(f, "ParseInt error on line {}: {}", line!(), error)
-            }
-            ArchbookDError::TeraTemplate(error) => {
-                write!(f, "Tera error on line {}: {}", line!(), error)
             }
             ArchbookDError::SystemCtlEnable(service) => write!(
                 f,
@@ -84,12 +80,6 @@ impl From<ParseIntError> for ArchbookDError {
 impl From<ArchbookDError> for fdo::Error {
     fn from(value: ArchbookDError) -> Self {
         Self::Failed(value.to_string())
-    }
-}
-
-impl From<tera::Error> for ArchbookDError {
-    fn from(value: tera::Error) -> Self {
-        ArchbookDError::TeraTemplate(value)
     }
 }
 

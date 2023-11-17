@@ -1,5 +1,5 @@
 use super::ArchbookdInterface;
-use screenpad as lib;
+use archbookd_lib::screenpad as lib; 
 use zbus::{dbus_interface, fdo};
 
 #[derive(Default)]

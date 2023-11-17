@@ -1,5 +1,5 @@
-use archbookd_error::ArchbookDResult;
-use service_utils::{enable_service_now, nuke_active_service, create_service_in_systemd_directory};
+use crate::error::ArchbookDResult;
+use crate::utils::{enable_service_now, nuke_active_service, create_service_in_systemd_directory};
 use tokio::fs;
 
 const BATTERY_SERVICE_TEMPLATE: &str = include_str!("./service.template");

@@ -1,11 +1,11 @@
-use archbookd_error::ArchbookDResult;
+use crate::error::{ArchbookDResult, ArchbookDError};
 use files::{
     BLACKLIST_CONTENT, BLACKLIST_PATH, MODESET_PATH, MODESET_RTD3, NVIDIA_XORG_CONFIG_PATH,
     NVIDIA_XRANDR_SCRIPT, SDDM_XSETUP_BACKUP_PATH, SDDM_XSETUP_CONTENT, SDDM_XSETUP_PATH,
     UDEV_INTEGRATED, UDEV_INTEGRATED_PATH, UDEV_PM_CONTENT, UDEV_PM_PATH, XORG_INTEL, XORG_PATH,
 };
 use radix_fmt::radix;
-use service_utils::{disable_active_service, enable_service_now};
+use crate::utils::{disable_active_service, enable_service_now};
 use std::str;
 use tokio::{fs, process::Command};
 
@@ -99,7 +99,7 @@ async fn get_nvidia_pci_bus() -> ArchbookDResult<String> {
         }
     }
 
-    Err(archbookd_error::ArchbookDError::InvalidPCIBusId)
+    Err(ArchbookDError::InvalidPCIBusId)
 }
 
 pub async fn switch_to_nvidia() -> ArchbookDResult<()> {
@@ -132,7 +132,7 @@ pub async fn library_up_to_date() -> ArchbookDResult<bool> {
         reqwest::get("https://api.github.com/repos/bayasdev/envycontrol/releases/latest").await?;
 
     if !response.status().is_success() {
-        return Err(archbookd_error::ArchbookDError::FailedToCheckForUpdates(
+        return Err(ArchbookDError::FailedToCheckForUpdates(
             String::from("hybrid_graphics"),
         ));
     }

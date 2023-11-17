@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use archbookd_error::ArchbookDResult;
+use crate::error::{ArchbookDResult, ArchbookDError};
 use tokio::fs;
 
 const BRIGHTNESS_FILE: &str = "/sys/class/leds/asus::screenpad/brightness";
@@ -17,7 +17,7 @@ pub async fn get_brightness() -> ArchbookDResult<i16> {
 /// Sets the current brightness
 pub async fn set_brightness(value: i16) -> ArchbookDResult<()> {
     if value > 255 || value < 0 {
-        return Err(archbookd_error::ArchbookDError::ScreenpadBrightnessOutOfRange);
+        return Err(ArchbookDError::ScreenpadBrightnessOutOfRange);
     }
 
     fs::write(BRIGHTNESS_FILE, value.to_string()).await?;
