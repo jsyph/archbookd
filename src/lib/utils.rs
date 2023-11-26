@@ -1,7 +1,11 @@
 use crate::error::{ArchbookDError, ArchbookDResult};
 use tokio::{fs, process::Command};
 
+#[cfg(not(debug_assertions))]
 const SYSTEMD_SERVICE_DIRECTORY: &str = "/etc/systemd/system";
+
+#[cfg(debug_assertions)]
+const SYSTEMD_SERVICE_DIRECTORY: &str = "./lib_test/etc/systemd/system";
 
 fn systemd_service_path(name: &str) -> String {
     format!("{}/{}", SYSTEMD_SERVICE_DIRECTORY, name)

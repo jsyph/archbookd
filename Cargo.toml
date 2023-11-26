@@ -11,8 +11,12 @@ name = "archbookd_lib"
 path = "src/lib/lib.rs"
 
 [[bin]]
-name = "archbookd"
-path = "src/bin.rs"
+name = "archbookd_daemon"
+path = "src/daemon/bin.rs"
+
+[[bin]]
+name = "archbookd_lib_cmd"
+path = "src/lib_cmd/bin.rs"
 
 [dependencies]
 tokio = { version = "1.32.0", features = ["full"] }
@@ -21,3 +25,4 @@ async-trait = "0.1.73"
 reqwest = "0.11.22"
 json = "0.12.4"
 radix_fmt = "1.0.0"
+nix = { version = "0.27.1", features = ["user"] }

@@ -3,8 +3,16 @@ use std::path::Path;
 use crate::error::{ArchbookDResult, ArchbookDError};
 use tokio::fs;
 
+#[cfg(not(debug_assertions))]
 const BRIGHTNESS_FILE: &str = "/sys/class/leds/asus::screenpad/brightness";
+#[cfg(debug_assertions)]
+const BRIGHTNESS_FILE: &str = "./lib_test/sys/class/leds/asus::screenpad/brightness";
+
+#[cfg(not(debug_assertions))]
 const BACKUP_BRIGHTNESS_FILE: &str = "/var/lib/archbookd/brightness_backup";
+#[cfg(debug_assertions)]
+const BACKUP_BRIGHTNESS_FILE: &str = "./lib_test/var/lib/archbookd/brightness_backup";
+
 const MIN_WORKING_BRIGHTNESS: i16 = 1;
 
 /// Gets the current brightness
@@ -107,6 +115,3 @@ pub async fn turn_off() -> ArchbookDResult<()> {
     set_brightness(0).await?;
     Ok(())
 }
-
-//? To restore brightness at start, use busctl to invoke
-//? busctl call joe.archbookd /screenpad joe.archbookd.Screenpad SetBrightness n 255

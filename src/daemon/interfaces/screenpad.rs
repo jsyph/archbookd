@@ -1,6 +1,7 @@
-use super::ArchbookdInterface;
 use archbookd_lib::screenpad as lib; 
 use zbus::{dbus_interface, fdo};
+
+use super::interface_trait::ArchbookdInterface;
 
 #[derive(Default)]
 pub struct ScreenpadInterface;

@@ -1,18 +1,23 @@
-use crate::error::{ArchbookDResult, ArchbookDError};
+use crate::error::{ArchbookDError, ArchbookDResult};
+use crate::utils::{disable_active_service, enable_service_now};
 use files::{
     BLACKLIST_CONTENT, BLACKLIST_PATH, MODESET_PATH, MODESET_RTD3, NVIDIA_XORG_CONFIG_PATH,
     NVIDIA_XRANDR_SCRIPT, SDDM_XSETUP_BACKUP_PATH, SDDM_XSETUP_CONTENT, SDDM_XSETUP_PATH,
     UDEV_INTEGRATED, UDEV_INTEGRATED_PATH, UDEV_PM_CONTENT, UDEV_PM_PATH, XORG_INTEL, XORG_PATH,
 };
 use radix_fmt::radix;
-use crate::utils::{disable_active_service, enable_service_now};
+use reqwest::header::{ACCEPT, CONTENT_TYPE, USER_AGENT};
 use std::str;
 use tokio::{fs, process::Command};
-
 
 mod files;
 
 const CURRENT_ENVYCONTROL_VERSION_NAME: &str = "v3.3.1";
+
+#[cfg(not(test))]
+const GITHUB_API_ENDPOINT: &str = "https://api.github.com/repos/bayasdev/envycontrol/releases/latest";
+#[cfg(test)]
+const GITHUB_API_ENDPOINT: &str = "http://localhost/8080";
 
 const FILES_TO_CLEANUP: [&str; 6] = [
     BLACKLIST_PATH,
@@ -42,6 +47,7 @@ async fn cleanup() -> ArchbookDResult<()> {
     Ok(())
 }
 
+/// Switch graphics mode to use integrated
 pub async fn switch_to_integrated() -> ArchbookDResult<()> {
     // disable nvidia persistence service
     disable_active_service("nvidia-persistenced.service").await?;
@@ -58,6 +64,7 @@ pub async fn switch_to_integrated() -> ArchbookDResult<()> {
     Ok(())
 }
 
+/// Switch graphics to hybrid, run apps on dedicated graphics card using prime-run
 pub async fn switch_to_hybrid() -> ArchbookDResult<()> {
     cleanup().await?;
 
@@ -102,6 +109,7 @@ async fn get_nvidia_pci_bus() -> ArchbookDResult<String> {
     Err(ArchbookDError::InvalidPCIBusId)
 }
 
+/// Switch to use nvidia gpu
 pub async fn switch_to_nvidia() -> ArchbookDResult<()> {
     enable_service_now("nvidia-persistenced.service").await?;
 
@@ -119,6 +127,7 @@ pub async fn switch_to_nvidia() -> ArchbookDResult<()> {
     Ok(())
 }
 
+/// Restores previous sddm configuration and removes files created
 pub async fn reset_all() -> ArchbookDResult<()> {
     fs::write(SDDM_XSETUP_PATH, SDDM_XSETUP_CONTENT).await?;
 
@@ -127,22 +136,32 @@ pub async fn reset_all() -> ArchbookDResult<()> {
     Ok(())
 }
 
+/// Checks via github api if envycontrol has been updated
 pub async fn library_up_to_date() -> ArchbookDResult<bool> {
-    let response =
-        reqwest::get("https://api.github.com/repos/bayasdev/envycontrol/releases/latest").await?;
+    let client = reqwest::Client::new();
+    let response = client
+        .get(GITHUB_API_ENDPOINT)
+        .header(
+            USER_AGENT,
+            "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/118.0",
+        )
+        .header(ACCEPT, "application/json")
+        .header(CONTENT_TYPE, "application/json")
+        .send()
+        .await?;
 
     if !response.status().is_success() {
-        return Err(ArchbookDError::FailedToCheckForUpdates(
-            String::from("hybrid_graphics"),
-        ));
+        return Err(ArchbookDError::FailedToCheckForUpdates(String::from(
+            "hybrid_graphics",
+        )));
     }
 
     let response_content = response.text().await?;
-    
+
     let parsed_response = json::parse(&response_content)?;
 
     if parsed_response["name"] != CURRENT_ENVYCONTROL_VERSION_NAME {
-        return Ok(false)
+        return Ok(false);
     }
 
     Ok(true)
