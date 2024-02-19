@@ -1,12 +1,14 @@
 [Unit]
 Description=Persist the battery charging threshold after EVENT
 After=EVENT.target
+StartLimitBurst=0
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c 'echo THRESHOLD > /sys/class/power_supply/BAT0/charge_control_end_threshold'
 Restart=on-failure
-RemainAfterExit=true
+ExecStart=/bin/bash -c 'echo THRESHOLD > /sys/class/power_supply/BAT0/charge_control_end_threshold'
 
 [Install]
 WantedBy=EVENT.target
+
+# Yanked from https://wiki.archlinux.org/title/Laptop/ASUS#systemd_service

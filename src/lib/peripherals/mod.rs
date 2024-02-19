@@ -1,4 +1,5 @@
-// camera control (toggle on/off and enable virtual cameras)
+mod camera;
+
 // microphone volume control
 // keyboard brightness control
 // touch pad toggle control

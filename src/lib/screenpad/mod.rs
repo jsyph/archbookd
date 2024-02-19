@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::error::{ArchbookDResult, ArchbookDError};
+use crate::error::{ArchbookDError, ArchbookDResult};
 use tokio::fs;
 
 #[cfg(not(debug_assertions))]

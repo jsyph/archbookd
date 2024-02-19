@@ -11,13 +11,13 @@ fn systemd_service_path(name: &str) -> String {
     format!("{}/{}", SYSTEMD_SERVICE_DIRECTORY, name)
 }
 
-pub async fn enable_service_now(name: &str) -> ArchbookDResult<()> {
+/// Runs `systemctl  enable SERVICE --now`
+pub async fn systemctl_enable_now(name: &str) -> ArchbookDResult<()> {
     if !Command::new("systemctl")
         .arg("enable")
         .arg(name.to_string())
         .arg("--now")
-        .spawn()?
-        .wait()
+        .status()
         .await?
         .success()
     {
@@ -27,38 +27,43 @@ pub async fn enable_service_now(name: &str) -> ArchbookDResult<()> {
     Ok(())
 }
 
-pub async fn create_service_in_systemd_directory(name: &str, content: &str) -> ArchbookDResult<()> {
-    fs::write(systemd_service_path(name), content).await?;
-    Ok(())
-}
-
-pub async fn nuke_active_service(name: &str) -> ArchbookDResult<()> {
-    fs::remove_file(systemd_service_path(name)).await?;
-
+/// Runs `systemctl daemon-reload`
+pub async fn systemctl_daemon_reload() -> ArchbookDResult<()> {
     if !Command::new("systemctl")
         .arg("daemon-reload")
-        .spawn()?
-        .wait()
+        .status()
         .await?
         .success()
     {
         return Err(ArchbookDError::SystemCtlDaemonReload);
     }
-
     Ok(())
 }
 
-pub async fn disable_active_service(name: &str) -> ArchbookDResult<()> {
+/// Runs `systemctl disable SERVICE`
+pub async fn systemctl_disable(name: &str) -> ArchbookDResult<()> {
     if !Command::new("systemctl")
         .arg("disable")
         .arg(name.to_string())
-        .spawn()?
-        .wait()
+        .status()
         .await?
         .success()
     {
         return Err(ArchbookDError::SystemCtlDisable(name.to_string()));
     }
+
+    Ok(())
+}
+
+/// Create file with `name` and `content` in `/etc/systemd/system` directory
+pub async fn create_in_systemd_directory(name: &str, content: &str) -> ArchbookDResult<()> {
+    fs::write(systemd_service_path(name), content).await?;
+    Ok(())
+}
+
+/// Deletes service from `/etc/systemd/system` directory
+pub async fn remove_from_systemd_directory(name: &str) -> ArchbookDResult<()> {
+    fs::remove_file(systemd_service_path(name)).await?;
 
     Ok(())
 }

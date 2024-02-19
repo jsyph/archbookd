@@ -18,7 +18,11 @@ pub enum ArchbookDError {
     InvalidPCIBusId,
     Reqwest(reqwest::Error),
     FailedToCheckForUpdates(String),
-    JsonParsing(json::Error)
+    JsonParsing(json::Error),
+    ModprobeEnable(String),
+    ModprobeDisable(String),
+    ModprobeBlacklist(String),
+    NotImplemented,
 }
 
 impl Error for ArchbookDError {}
@@ -61,6 +65,14 @@ impl Display for ArchbookDError {
                 write!(f, "Failed to check on updates for module {}", module)
             }
             ArchbookDError::JsonParsing(error) => write!(f, "{}", error),
+            ArchbookDError::ModprobeEnable(name) => {
+                write!(f, "Failed to enable {} using modprobe", name)
+            }
+            ArchbookDError::ModprobeDisable(name) => {
+                write!(f, "Failed to disable {} using modprobe", name)
+            }
+            ArchbookDError::ModprobeBlacklist(message) => write!(f, "{}", message),
+            ArchbookDError::NotImplemented => write!(f, "Function not yet implemented")
         }
     }
 }
@@ -89,7 +101,7 @@ impl From<reqwest::Error> for ArchbookDError {
     }
 }
 
-impl From<json::Error> for ArchbookDError{
+impl From<json::Error> for ArchbookDError {
     fn from(value: json::Error) -> Self {
         ArchbookDError::JsonParsing(value)
     }

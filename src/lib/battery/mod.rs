@@ -1,5 +1,8 @@
 use crate::error::ArchbookDResult;
-use crate::utils::{create_service_in_systemd_directory, enable_service_now, nuke_active_service};
+use crate::utils::systemctl::{
+    create_in_systemd_directory, remove_from_systemd_directory, systemctl_daemon_reload,
+    systemctl_enable_now,
+};
 use tokio::fs;
 
 const BATTERY_SERVICE_TEMPLATE: &str = include_str!("./service.template");
@@ -30,16 +33,20 @@ pub async fn set_charge_threshold(value: i16) -> ArchbookDResult<()> {
     Ok(())
 }
 
+fn service_name(event: &str) -> String {
+    format!("archbookd-{}-charge-maximum-persistence.service", event)
+}
+
 /// Creates services to set the charge threshold
 pub async fn persist_charge_threshold(value: i16) -> ArchbookDResult<()> {
     for event in BATTERY_SERVICE_EVENTS {
         let mut service_content = BATTERY_SERVICE_TEMPLATE.replace("EVENT", event);
         service_content = service_content.replace("THRESHOLD", &value.to_string());
 
-        let service_name = format!("archbookd-{}-charge-maximum-persistence.service", event);
+        let service_name = service_name(event);
 
-        create_service_in_systemd_directory(&service_name, &service_content).await?;
-        enable_service_now(&service_name).await?;
+        create_in_systemd_directory(&service_name, &service_content).await?;
+        systemctl_enable_now(&service_name).await?;
     }
 
     Ok(())
@@ -51,9 +58,10 @@ pub async fn full_reset() -> ArchbookDResult<()> {
     set_charge_threshold(100).await?;
 
     for event in BATTERY_SERVICE_EVENTS {
-        let service_name = format!("archbookd-{}-charge-maximum-persistence.service", event);
+        let service_name = service_name(event);
 
-        nuke_active_service(&service_name).await?;
+        remove_from_systemd_directory(&service_name).await?;
+        systemctl_daemon_reload().await?;
     }
 
     Ok(())
